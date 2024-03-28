@@ -1,4 +1,11 @@
 {
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node ./dist/app.js",
+    "dev": "tsc & nodemon ./dist/app.js",
+    "watch": "tsc --watch"
+  },
   "dependencies": {
     "@telegraf/session": "^2.0.0-beta.7",
     "better-sqlite3": "^9.4.3",
