@@ -1,11 +1,11 @@
 import { Telegraf, session } from "telegraf";
 
-const bot = new Telegraf("6292118007:AAF2wEBMrPUKpS5rxvl23zxfkHzBJFrmQMU");
+const bot = new Telegraf("token");
 // Визначте ідентифікатор каналу, з якого ви хочете копіювати повідомлення
-const sourceChannelId = "-1002133750931";
+const sourceChannelId = "sourceChannelId";
 
 // Визначте ідентифікатори каналів, куди ви хочете надсилати копії повідомлень
-const destinationChannelIds = ["-1002084827801"];
+const destinationChannelIds = ["destinationChannelId"];
 const mediaGroups: any = {};
 // Прослуховування нових повідомлень у вихідному каналі
 const initiatedMediaGroup: any = {};
