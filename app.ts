@@ -1,13 +1,9 @@
 import { Telegraf, session } from "telegraf";
 
 const bot = new Telegraf("token");
-// Визначте ідентифікатор каналу, з якого ви хочете копіювати повідомлення
 const sourceChannelId = "sourceChannelId";
-
-// Визначте ідентифікатори каналів, куди ви хочете надсилати копії повідомлень
 const destinationChannelIds = ["destinationChannelId"];
 const mediaGroups: any = {};
-// Прослуховування нових повідомлень у вихідному каналі
 const initiatedMediaGroup: any = {};
 
 bot.on("channel_post", async (ctx) => {
@@ -15,11 +11,8 @@ bot.on("channel_post", async (ctx) => {
 
   if (message.chat.id.toString() === sourceChannelId) {
     if (message.media_group_id) {
-      // Перевірка, чи вже був ініційований процес відправки для цієї медіа групи
       if (!initiatedMediaGroup[message.media_group_id]) {
         initiatedMediaGroup[message.media_group_id] = true;
-
-        // Встановлення таймера на 2 секунди для очікування інших повідомлень в групі
         setTimeout(async () => {
           //@ts-ignore
           const savedMessages = mediaGroups[message.media_group_id];
@@ -34,22 +27,18 @@ bot.on("channel_post", async (ctx) => {
                 );
               }
             }
-            // Після відправлення медіа групи очищуємо дані про media_group_id
             //@ts-ignore
             delete mediaGroups[message.media_group_id];
             //@ts-ignore
             delete initiatedMediaGroup[message.media_group_id];
           }
-        }, 2000); // Таймер на 2 секунди
+        }, 2000);
       }
-
-      // Додавання поточного повідомлення до збережених повідомлень
       if (!mediaGroups[message.media_group_id]) {
         mediaGroups[message.media_group_id] = [];
       }
       mediaGroups[message.media_group_id].push(message);
     } else {
-      // Якщо це не медіа група, надішліть повідомлення по одному
       for (const destinationChannelId of destinationChannelIds) {
         try {
           await sendCopyMessage(destinationChannelId, message);
@@ -63,29 +52,23 @@ bot.on("channel_post", async (ctx) => {
     }
   }
 });
-// Функція для відправлення медіа групи в призначений канал
 async function sendMediaGroup(destinationChannelId: string, messages: any) {
   const media = [];
   for (const message of messages) {
     if (message.photo) {
-      // Якщо це фото, додайте його до масиву медіафайлів
       media.push({
         type: "photo",
         media: message.photo[0].file_id,
-        caption: message.caption, // Додайте підпис, якщо він існує
+        caption: message.caption,
       });
     } else if (message.video) {
-      // Якщо це відео, додайте його до масиву медіафайлів
       media.push({
         type: "video",
         media: message.video.file_id,
-        caption: message.caption, // Додайте підпис, якщо він існує
+        caption: message.caption,
       });
     }
-    // Додайте інші умови для інших типів медіа, якщо потрібно
   }
-
-  // Відправте медіа групу в призначений канал
   //@ts-ignore
   await bot.telegram.sendMediaGroup(destinationChannelId, media);
 
@@ -93,16 +76,12 @@ async function sendMediaGroup(destinationChannelId: string, messages: any) {
     `Media group successfully sent to channel ${destinationChannelId}`,
   );
 }
-
-// Функція для надсилання копії повідомлення в призначений канал
 async function sendCopyMessage(destinationChannelId: string, message: any) {
   const copiedMessage = await bot.telegram.copyMessage(
     destinationChannelId,
     sourceChannelId,
     message.message_id,
   );
-
-  // Додаткові опції можуть бути додані тут, наприклад, реакція на успішну надсилання
   console.log(`Повідомлення успішно надіслано в канал ${destinationChannelId}`);
 }
 
